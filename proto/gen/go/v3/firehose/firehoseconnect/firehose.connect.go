@@ -11,7 +11,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	firehose "github.com/swappableqm/swapperd/proto/gen/v3/firehose"
+	firehose "github.com/swappableqm/swapperd/proto/gen/go/v3/firehose"
 	http "net/http"
 	strings "strings"
 )

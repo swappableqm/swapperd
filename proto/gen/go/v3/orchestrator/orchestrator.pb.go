@@ -10,7 +10,7 @@
 package orchestrator
 
 import (
-	firehose "github.com/swappableqm/swapperd/proto/gen/v3/firehose"
+	firehose "github.com/swappableqm/swapperd/proto/gen/go/v3/firehose"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -676,8 +676,8 @@ const file_v3_orchestrator_orchestrator_proto_rawDesc = "" +
 	"DeviceSync\x12\".v3.orchestrator.DeviceSyncRequest\x1a#.v3.orchestrator.DeviceSyncResponse\x12U\n" +
 	"\n" +
 	"QueueStart\x12\".v3.orchestrator.QueueStartRequest\x1a#.v3.orchestrator.QueueStartResponse\x12R\n" +
-	"\tQueueStop\x12!.v3.orchestrator.QueueStopRequest\x1a\".v3.orchestrator.QueueStopResponseB\xc0\x01\n" +
-	"\x13com.v3.orchestratorB\x11OrchestratorProtoP\x01Z9github.com/swappableqm/swapperd/proto/gen/v3/orchestrator\xa2\x02\x03VOX\xaa\x02\x0fV3.Orchestrator\xca\x02\x0fV3\\Orchestrator\xe2\x02\x1bV3\\Orchestrator\\GPBMetadata\xea\x02\x10V3::Orchestratorb\x06proto3"
+	"\tQueueStop\x12!.v3.orchestrator.QueueStopRequest\x1a\".v3.orchestrator.QueueStopResponseB\xc3\x01\n" +
+	"\x13com.v3.orchestratorB\x11OrchestratorProtoP\x01Z<github.com/swappableqm/swapperd/proto/gen/go/v3/orchestrator\xa2\x02\x03VOX\xaa\x02\x0fV3.Orchestrator\xca\x02\x0fV3\\Orchestrator\xe2\x02\x1bV3\\Orchestrator\\GPBMetadata\xea\x02\x10V3::Orchestratorb\x06proto3"
 
 var (
 	file_v3_orchestrator_orchestrator_proto_rawDescOnce sync.Once

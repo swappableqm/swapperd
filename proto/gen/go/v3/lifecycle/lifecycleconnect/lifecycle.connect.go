@@ -11,7 +11,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	lifecycle "github.com/swappableqm/swapperd/proto/gen/v3/lifecycle"
+	lifecycle "github.com/swappableqm/swapperd/proto/gen/go/v3/lifecycle"
 	http "net/http"
 	strings "strings"
 )

@@ -10,7 +10,7 @@
 package lifecycle
 
 import (
-	firehose "github.com/swappableqm/swapperd/proto/gen/v3/firehose"
+	firehose "github.com/swappableqm/swapperd/proto/gen/go/v3/firehose"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -382,8 +382,8 @@ const file_v3_lifecycle_lifecycle_proto_rawDesc = "" +
 	"\n" +
 	"DeviceSync\x12\x1f.v3.lifecycle.DeviceSyncRequest\x1a .v3.lifecycle.DeviceSyncResponse\x12@\n" +
 	"\x05Start\x12\x1a.v3.lifecycle.StartRequest\x1a\x1b.v3.lifecycle.StartResponse\x12=\n" +
-	"\x04Stop\x12\x19.v3.lifecycle.StopRequest\x1a\x1a.v3.lifecycle.StopResponseB\xab\x01\n" +
-	"\x10com.v3.lifecycleB\x0eLifecycleProtoP\x01Z6github.com/swappableqm/swapperd/proto/gen/v3/lifecycle\xa2\x02\x03VLX\xaa\x02\fV3.Lifecycle\xca\x02\fV3\\Lifecycle\xe2\x02\x18V3\\Lifecycle\\GPBMetadata\xea\x02\rV3::Lifecycleb\x06proto3"
+	"\x04Stop\x12\x19.v3.lifecycle.StopRequest\x1a\x1a.v3.lifecycle.StopResponseB\xae\x01\n" +
+	"\x10com.v3.lifecycleB\x0eLifecycleProtoP\x01Z9github.com/swappableqm/swapperd/proto/gen/go/v3/lifecycle\xa2\x02\x03VLX\xaa\x02\fV3.Lifecycle\xca\x02\fV3\\Lifecycle\xe2\x02\x18V3\\Lifecycle\\GPBMetadata\xea\x02\rV3::Lifecycleb\x06proto3"
 
 var (
 	file_v3_lifecycle_lifecycle_proto_rawDescOnce sync.Once

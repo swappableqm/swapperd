@@ -811,8 +811,8 @@ const file_v3_firehose_firehose_proto_rawDesc = "" +
 	"\x10GetResourcePools\x12$.v3.firehose.GetResourcePoolsRequest\x1a%.v3.firehose.GetResourcePoolsResponse\x12M\n" +
 	"\n" +
 	"GetDevices\x12\x1e.v3.firehose.GetDevicesRequest\x1a\x1f.v3.firehose.GetDevicesResponse\x12G\n" +
-	"\bPVEProxy\x12\x1c.v3.firehose.PVEProxyRequest\x1a\x1d.v3.firehose.PVEProxyResponseB\xa4\x01\n" +
-	"\x0fcom.v3.firehoseB\rFirehoseProtoP\x01Z5github.com/swappableqm/swapperd/proto/gen/v3/firehose\xa2\x02\x03VFX\xaa\x02\vV3.Firehose\xca\x02\vV3\\Firehose\xe2\x02\x17V3\\Firehose\\GPBMetadata\xea\x02\fV3::Firehoseb\x06proto3"
+	"\bPVEProxy\x12\x1c.v3.firehose.PVEProxyRequest\x1a\x1d.v3.firehose.PVEProxyResponseB\xa7\x01\n" +
+	"\x0fcom.v3.firehoseB\rFirehoseProtoP\x01Z8github.com/swappableqm/swapperd/proto/gen/go/v3/firehose\xa2\x02\x03VFX\xaa\x02\vV3.Firehose\xca\x02\vV3\\Firehose\xe2\x02\x17V3\\Firehose\\GPBMetadata\xea\x02\fV3::Firehoseb\x06proto3"
 
 var (
 	file_v3_firehose_firehose_proto_rawDescOnce sync.Once

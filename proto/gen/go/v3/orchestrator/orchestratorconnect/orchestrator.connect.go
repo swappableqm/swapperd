@@ -11,7 +11,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	orchestrator "github.com/swappableqm/swapperd/proto/gen/v3/orchestrator"
+	orchestrator "github.com/swappableqm/swapperd/proto/gen/go/v3/orchestrator"
 	http "net/http"
 	strings "strings"
 )

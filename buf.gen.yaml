@@ -3,15 +3,22 @@ managed:
   enabled: true
   override:
     - file_option: go_package_prefix
-      value: github.com/swappableqm/swapperd/proto/gen
+      value: github.com/swappableqm/swapperd/proto/gen/go
 plugins:
   - remote: buf.build/protocolbuffers/go
-    out: proto/gen
+    out: proto/gen/go
     opt: paths=source_relative
   - remote: buf.build/connectrpc/gosimple
-    out: proto/gen
+    out: proto/gen/go
     opt:
       - paths=source_relative
       - simple
+  - remote: buf.build/community/timostamm-protobuf-ts:v2.11.1
+    out: proto/gen/ts
+    opt:
+      - server_grpc1
+      - client_none
+      - optimize_code_size
+
 inputs:
   - directory: proto/svc

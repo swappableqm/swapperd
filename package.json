@@ -1,0 +1,20 @@
+{
+  "name": "swapperd",
+  "scripts": {
+    "dev:firehose": "cp .env svc/firehose/.env && cd svc/firehose && bun run --hot src/index.ts",
+    "build:buf": "rm -rf proto/gen && buf generate"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.11.0",
+    "@grpc/grpc-js": "^1.14.3",
+    "@protobuf-ts/runtime": "^2.11.1",
+    "@protobuf-ts/runtime-rpc": "^2.11.1",
+    "dotenv": "^17.3.1",
+    "google-protobuf": "^4.0.2",
+    "hono": "^4.12.9",
+    "proxmox-api": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
