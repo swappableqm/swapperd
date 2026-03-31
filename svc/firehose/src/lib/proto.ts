@@ -1,4 +1,5 @@
 import { QM_Status } from "@/proto/gen/ts/v3/firehose/firehose";
+import { Proxmox } from "proxmox-api";
 
 export const statusToEnum = (status: string): QM_Status => {
     switch (status) {
@@ -12,5 +13,13 @@ export const statusToEnum = (status: string): QM_Status => {
             return QM_Status.PRELAUNCH;
         default:
             return QM_Status.UNSPECIFIED;
+    }
+}
+
+export const qmProtoiser = (qm: Proxmox.nodesQemuVm) => {
+    return {
+        id: qm.vmid?.toString() ?? "",
+        name: qm.name?.toString() ?? "",
+        status: statusToEnum(qm.status ?? ""),
     }
 }
