@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package swapperd.firehose.v3;
+
+option go_package = "github.com/swappableqm/swapperd/proto/gen/v3;firehosev3";
+
+// A physical PCI(e) or USB device reported by PVE.
+message Device {
+  enum TYPE {
+    TYPE_UNSPECIFIED = 0; // this should NEVER be the case
+    TYPE_PCI = 1;
+    TYPE_USB = 2;
+  }
+
+  TYPE type = 1;
+  string id = 2; // the device id (i.e. pci: 0000:00:02.0, or for usb: 1.2)
+  string as = 3; // the qemu device mapping id used by default (i.e. pci6 or usb7)
+}
+
+// A QM represents a QEMU virtual machine in PVE.
+// The QM is the top-level object managed by swapperd.
+message QM {
+  enum STATUS {
+    STATUS_UNSPECIFIED = 0; // default
+    STATUS_RUNNING = 1; // online
+    STATUS_PAUSED = 2; // sleeping/suspended
+    STATUS_STOPPED = 3; // offline
+    STATUS_PRELAUNCH = 4; // performing backup or other config task
+  }
+
+  string id = 1;
+  string name = 2;
+  STATUS status = 3;
+}
+
+message GetQMsRequest {}
+
+message GetQMsResponse {
+  repeated QM qms = 1;
+}
+
+service FirehoseService {
+  rpc GetQMs(GetQMsRequest) returns (GetQMsResponse);
+}

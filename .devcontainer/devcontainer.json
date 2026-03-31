@@ -1,0 +1,32 @@
+{
+	// Based on "Go & Typescript" by prulloac
+	"name": "swapperd",
+	"image": "ghcr.io/prulloac/base:bookworm",
+	// 👇 Features to add to the Dev Container. More info: https://containers.dev/implementors/features.
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/prulloac/devcontainer-features/bun:1": {},
+		"ghcr.io/devcontainers/features/node:1": {},
+		"ghcr.io/devcontainers/features/go:1": {
+			"version": "latest",
+			"golangciLintVersion": "latest"
+		},
+		"ghcr.io/devcontainers-extra/features/protoc:1": {},
+		"ghcr.io/mrsimonemms/devcontainers/buf:1": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"vivaxy.vscode-conventional-commits",
+				"dancheg97.grpc-clicker",
+				"bufbuild.vscode-buf"
+			]
+		}
+	}
+	// 👇 Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+	// 👇 Configure tool-specific properties.
+	// "customizations": {},
+	// 👇 Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}
