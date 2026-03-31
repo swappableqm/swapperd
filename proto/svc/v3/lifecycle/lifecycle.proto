@@ -1,0 +1,52 @@
+// Microservice: LifecycleService
+// LifecycleService is responsible for managing the lifecycle of swapperd-managed QM(s).
+syntax = "proto3";
+
+package v3.lifecycle;
+
+import "v3/firehose/firehose.proto";
+
+option go_package = "github.com/swappableqm/swapperd/proto/gen/v3/lifecycle;lifecyclev3";
+
+service LifecycleService {
+  // Sync the active QM with the list of active (currently connected) devices.
+  // Other QMs will have blacklisted devices removed, if possible.
+  rpc DeviceSync(DeviceSyncRequest) returns (DeviceSyncResponse);
+
+  // Start a QM.
+  // (Request proxied to Firehose)
+  rpc Start(StartRequest) returns (StartResponse);
+
+  // Stop (or halt) a QM.
+  // (Request proxied to Firehose)
+  rpc Stop(StopRequest) returns (StopResponse);
+}
+
+message DeviceSyncRequest {
+  v3.firehose.Device.Type type = 1; // The type of device to sync. LifecycleService will only sync one type at a time (PCI(e) or USB).
+  string id = 2; // The QMID to sync devices to.
+}
+message DeviceSyncResponse {
+  v3.firehose.Device.Type type = 1; // The type of device to sync. LifecycleService will only sync one type at a time (PCI(e) or USB).
+  v3.firehose.QM qm = 2; // The QM devices were added to. All other QMs will have blacklisted devices removed.
+  repeated v3.firehose.Device added_devices = 3; // The devices that were added to the QM.
+  repeated v3.firehose.Device removed_devices = 4; // The devices that were removed from the QM.
+}
+
+message StartRequest {
+  string id = 1; // The ID of the QM to start.
+}
+message StartResponse {
+  v3.firehose.QM qm = 1; // The QM that was started.
+  bool success = 2; // If true, the start request was successful.
+}
+
+message StopRequest {
+  string id = 1; // The ID of the QM to stop.
+  bool halt = 2; // If true, the active QM will be immediately halted instead of gracefully stopped.
+  int32 timeout = 3; // The maximum time to wait for the QM to stop, in seconds. If 0, the default timeout will be used.
+}
+message StopResponse {
+  v3.firehose.QM qm = 1; // The QM that was stopped.
+  bool success = 2; // If true, the stop request was successful.
+}

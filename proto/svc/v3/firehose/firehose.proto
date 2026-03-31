@@ -1,0 +1,96 @@
+// Microservice: Firehose
+// Firehose provides a bridge to Proxmox VE for other microservices to consume and communicate with.
+syntax = "proto3";
+
+package v3.firehose;
+
+option go_package = "github.com/swappableqm/swapperd/proto/gen/v3/firehose;firehosev3";
+
+service FirehoseService {
+  // Get the list of all QMs in PVE.
+  rpc GetQMs(GetQMsRequest) returns (GetQMsResponse);
+
+  // Get the list of all resource pools.
+  rpc GetResourcePools(GetResourcePoolsRequest) returns (GetResourcePoolsResponse);
+
+  // Get all devices (resource mappings).
+  rpc GetDevices(GetDevicesRequest) returns (GetDevicesResponse);
+
+  // Proxy a request to PVE.
+  // Safest and simplest way to communicate with host; manages authentication and routing.
+  rpc PVEProxy(PVEProxyRequest) returns (PVEProxyResponse);
+}
+
+// A physical PCI(e) or USB device reported by PVE.
+message Device {
+  enum Type {
+    TYPE_UNSPECIFIED = 0; // this should NEVER be the case
+    TYPE_PCI = 1;
+    TYPE_USB = 2;
+  }
+
+  Type type = 1;
+  string id = 2; // the device id (i.e. pci: 0000:00:02.0, or for usb: 1.2)
+  string as = 3; // the qemu device mapping id used by default (i.e. pci6 or usb7)
+  bool connected = 4; // If true, the device is connected to the host.
+  bool active = 5; // If true, the device is actively used by a QM.
+}
+
+// A QM represents a QEMU virtual machine in PVE.
+// The QM is the top-level object managed by swapperd.
+message QM {
+  enum Status {
+    STATUS_UNSPECIFIED = 0; // default
+    STATUS_RUNNING = 1; // online
+    STATUS_PAUSED = 2; // sleeping/suspended
+    STATUS_STOPPED = 3; // offline
+    STATUS_PRELAUNCH = 4; // performing backup or other config task
+  }
+
+  string id = 1;
+  string name = 2;
+  Status status = 3;
+}
+
+// A resource pool is a Proxmox-native logistic grouping of VMs (QMs and LXCs) and storage resources.
+// swapperd only pays attention to QMs, and will not manage storage resources.
+// This resource exists to manage the "swapper" resource pool, which determines the list of swappable QMs.
+message ResourcePool {
+  string id = 1; // The ID (name) of the resource pool.
+  repeated QM qms = 2; // List of QMs (only QEMU-based VMs!! not LXC) in the resource pool.
+}
+
+message GetQMsRequest {}
+message GetQMsResponse {
+  repeated QM qms = 1;
+}
+
+message GetResourcePoolsRequest {}
+message GetResourcePoolsResponse {
+  repeated ResourcePool resource_pools = 1;
+}
+
+message GetDevicesRequest {}
+message GetDevicesResponse {
+  repeated Device devices = 1;
+}
+
+message PVEProxyRequest {
+  enum METHOD {
+    METHOD_UNSPECIFIED = 0; // Default. Should *never* be used.
+    METHOD_GET = 1; // GET
+    METHOD_POST = 2; // POST
+    METHOD_PUT = 3; // PUT
+    METHOD_DELETE = 4; // DELETE
+  }
+
+  METHOD method = 1; // The HTTP method to use.
+  string path = 2; // The path to the resource.
+  map<string, string> headers = 3; // The headers to send with the request.
+  bytes body = 4; // The body to send with the request.
+}
+message PVEProxyResponse {
+  int32 status_code = 1; // The HTTP status code returned by the request.
+  map<string, string> headers = 2; // The headers returned by the request.SS
+  bytes body = 3; // The body returned by the request.
+}

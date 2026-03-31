@@ -1,0 +1,89 @@
+// Microservice: Orchestrator
+// Orchestrator is responsible for managing the lifecycle of swapperd-managed QM(s).
+syntax = "proto3";
+
+package v3.orchestrator;
+
+import "v3/firehose/firehose.proto";
+
+option go_package = "github.com/swappableqm/swapperd/proto/gen/v3/orchestrator;orchestratorv3";
+
+service OrchestratorService {
+  // Get the QM actively targeted by Orchestrator.
+  // Orchestrator is designed to only allow a single QM to be targeted at a time.
+  // Other QMs can continue running, but are blacklisted from accessing resources earmarked for the swapperd-managed QM.
+  rpc Active(ActiveRequest) returns (ActiveResponse);
+
+  // Get the list of all QMs marked as "swappable."
+  // A swappable QM is one that is earmarked as manageable by swapperd.
+  rpc Swappables(SwappablesRequest) returns (SwappablesResponse);
+
+  // Sync the active QM with the list of active (currently connected) devices.
+  // Other QMs will have blacklisted devices removed, if possible.
+  // (Request fulfilled by LifecycleService)
+  rpc DeviceSync(DeviceSyncRequest) returns (DeviceSyncResponse);
+
+  // Queues a start request for a QM.
+  // If there is an active QM, it will be stopped and the new QM started.
+  // If the QM is already active and managed by Orchestrator, the request will be ignored and immediately marked as complete.
+  // (Request fulfilled by LifecycleService)
+  rpc QueueStart(QueueStartRequest) returns (QueueStartResponse);
+
+  // Queues a stop request for a QM.
+  // If no QM is currently managed by Orchestrator, the request will be ignored and immediately marked as complete.
+  // (Request fulfilled by LifecycleService)
+  rpc QueueStop(QueueStopRequest) returns (QueueStopResponse);
+}
+
+message ActiveRequest {}
+message ActiveResponse {
+  v3.firehose.QM qm = 1; // The QM actively targeted by Orchestrator.
+}
+
+message SwappablesRequest {}
+message SwappablesResponse {
+  repeated v3.firehose.QM swappables = 1; // The list of QMs marked as "swappable."
+}
+
+message DeviceSyncRequest {
+  enum Rationale {
+    RATIONALE_UNSPECIFIED = 0; // Default. Should be used during device discovery only.
+    RATIONALE_DEVICE_ADDED = 1; // Device added (i.e. USB device plugged in)
+    RATIONALE_DEVICE_REMOVED = 2; // Device removed (i.e. USB device unplugged)
+    RATIONALE_DEVICE_CONFIGURED = 3; // Device configuration changed (i.e. QEMU device mapping changed)
+    RATIONALE_LIFECYCLE = 4; // Triggered during QM lifecycle (i.e. swap, start, stop/halt)
+    RATIONALE_MAINTENANCE = 5; // Periodically triggered to maintain device state (~every 30 seconds)
+    RATIONALE_MANUAL = 6; // Manually triggered by user (i.e. swapperctl sync)
+  }
+  v3.firehose.Device.Type type = 1; // The type of device to sync. LifecycleService will only sync one type at a time (PCI(e) or USB).
+  Rationale rationale = 2; // The reason for the device sync.
+  bool dry = 3; // If true, Orchestrator will not make any changes to the QM. This is useful for testing.
+}
+message DeviceSyncResponse {
+  v3.firehose.QM qm = 1; // The QM devices were added to. All other QMs will have blacklisted devices removed.
+  repeated v3.firehose.Device added_devices = 2; // The devices that were added to the QM.
+  repeated v3.firehose.Device removed_devices = 3; // The devices that were removed from the QM.
+}
+
+message QueueStartRequest {
+  enum CurrentBehaviour {
+    CURRENT_BEHAVIOUR_UNSPECIFIED = 0; // Default - current active QM gracefully shuts down.
+    CURRENT_BEHAVIOUR_HALT = 1; // current active QM immediately halts.
+    CURRENT_BEHAVIOUR_RUN = 2; // *NOT RECOMMENDED IF SWAPPING PCI(E) DEVICES.* current active QM remains running, but blacklisted devices are removed.
+  }
+  string id = 1; // The ID of the QM to start.
+  CurrentBehaviour current_qm_behaviour = 2; // The behaviour of the current active QM when the new QM is started.
+  bool dry = 3; // Dry-run mode (i.e. do not actually send requests to LifecycleService).
+}
+message QueueStartResponse {
+  v3.firehose.QM qm = 1; // The QM that was started.
+}
+
+message QueueStopRequest {
+  bool halt = 1; // If true, the active QM will be immediately halted instead of gracefully stopped.
+  int32 timeout = 2; // The maximum time to wait for the QM to stop, in seconds. If 0, the default timeout will be used.
+  bool dry = 3; // Dry-run mode (i.e. do not actually send requests to LifecycleService).
+}
+message QueueStopResponse {
+  v3.firehose.QM qm = 1; // The QM that was stopped.
+}

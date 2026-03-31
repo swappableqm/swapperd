@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	firehosev3 "github.com/swappableqm/swapperd/proto/gen/firehose/v3"
-	"github.com/swappableqm/swapperd/proto/gen/firehose/v3/firehosev3connect"
+	firehosev3 "github.com/swappableqm/swapperd/proto/gen/v3/firehose"
+	"github.com/swappableqm/swapperd/proto/gen/v3/firehose/firehoseconnect"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )
@@ -16,7 +16,7 @@ const address = "localhost:8080"
 
 func main() {
 	mux := http.NewServeMux()
-	path, handler := firehosev3connect.NewFirehoseServiceHandler(&firehoseServiceServer{})
+	path, handler := firehoseconnect.NewFirehoseServiceHandler(&firehoseServiceServer{})
 	mux.Handle(path, handler)
 	fmt.Println("... swapperd.firehose listening on", address)
 	http.ListenAndServe(
@@ -27,7 +27,7 @@ func main() {
 }
 
 type firehoseServiceServer struct {
-	firehosev3connect.UnimplementedFirehoseServiceHandler
+	firehoseconnect.UnimplementedFirehoseServiceHandler
 }
 
 func (s *firehoseServiceServer) GetQMs(ctx context.Context, req *firehosev3.GetQMsRequest) (*firehosev3.GetQMsResponse, error) {
