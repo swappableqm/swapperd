@@ -3,6 +3,7 @@ import 'dotenv/config';
 import * as grpc from "@grpc/grpc-js";
 import { firehoseServiceDefinition } from "@/proto/gen/ts/v3/firehose/firehose.grpc-server";
 import { firehoseService } from "./calls";
+import { logLevels, logServices, uniformLog } from './lib/util';
 
 const initServer: () => grpc.Server = () => {
     const server = new grpc.Server();
@@ -10,13 +11,18 @@ const initServer: () => grpc.Server = () => {
     return server;
 };
 
-if (require.main === module) {
+const createNetworkServer = async (addr: string): Promise<void> => {
     const server = initServer();
-    server.bindAsync(process.env.FIREHOSE_LISTEN ?? "0.0.0.0:50051", grpc.ServerCredentials.createInsecure(), (err, port) => {
+    server.bindAsync(addr ?? "0.0.0.0:50051", grpc.ServerCredentials.createInsecure(), (err, port) => {
         if (err) {
-            console.error(err);
-            process.exit(1);
+            console.log(err)
+            process.exit(1)
         }
-        console.log(`Server listening on ${port}`);
+
+        uniformLog(logLevels["info"], logServices.server, `listening on ${addr}`);
     });
+};
+
+if (require.main === module) {
+    createNetworkServer(process.env.FIREHOSE_LISTEN ?? "0.0.0.0:50051")
 }
