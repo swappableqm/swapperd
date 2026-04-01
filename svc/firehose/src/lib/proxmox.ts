@@ -1,4 +1,11 @@
 import { fetch } from "bun";
+import type { Proxmox } from "proxmox-api";
+
+export type PVEFetchResponse<T> = {
+    ok: boolean;
+    data: T;
+    raw?: Response;
+};
 
 export const pveDetails = {
     host: process.env.FIREHOSE_PVE_URL ?? "https://localhost:8006",
@@ -16,7 +23,7 @@ export const pveFetchOptions: BunFetchRequestInit = {
     }
 }
 
-export const pveHello = async (): Promise<any> => {
+export const pveHello = async (): Promise<PVEFetchResponse<Proxmox.versionVersion>> => {
     const response = await fetch(pveDetails.host + "/api2/json/version", {
         method: "GET",
         ...pveFetchOptions,
@@ -27,11 +34,15 @@ export const pveHello = async (): Promise<any> => {
         throw new Error("Failed to fetch PVE status");
     }
 
-    const data = await response.json();
-    return data.data;
+    const data: any = await response.json();
+    return {
+        ok: response.ok,
+        data: data?.data,
+        raw: response
+    };
 }
 
-export const pveFetch = async (path: string, init?: BunFetchRequestInit): Promise<any> => {
+export const pveFetch = async <T>(path: string, init?: BunFetchRequestInit): Promise<PVEFetchResponse<T>> => {
     const response = await fetch(pveDetails.host + "/api2/json" + path, {
         method: "GET",
         ...pveFetchOptions,
@@ -40,7 +51,26 @@ export const pveFetch = async (path: string, init?: BunFetchRequestInit): Promis
         throw new Error(`Failed to fetch PVE data: ${err}`);
     });
 
+    const data: any = await response.json();
 
-    const data = await response.json();
-    return data.data;
-}
+    return {
+        ok: response.ok,
+        data: data?.data,
+        raw: response
+    };
+};
+
+export const pveBaseFetch = async (path: string, init?: BunFetchRequestInit): Promise<Response> => {
+    const response = await fetch(pveDetails.host + "/api2/json" + path, {
+        ...pveFetchOptions,
+        ...init,
+        headers: {
+            ...pveFetchOptions.headers,
+            ...init?.headers,
+        }
+    }).catch((err) => {
+        throw new Error(`Failed to fetch PVE data: ${err}`);
+    });
+
+    return response;
+};
