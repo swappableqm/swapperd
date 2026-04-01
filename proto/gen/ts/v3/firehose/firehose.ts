@@ -11,6 +11,7 @@ import { UnknownFieldHandler } from "@protobuf-ts/runtime";
 import type { PartialMessage } from "@protobuf-ts/runtime";
 import { reflectionMergePartial } from "@protobuf-ts/runtime";
 import { MessageType } from "@protobuf-ts/runtime";
+import { Struct } from "../../google/protobuf/struct";
 /**
  * A physical PCI(e) or USB device reported by PVE.
  *
@@ -26,17 +27,29 @@ export interface Device {
      */
     id: string; // the device id (i.e. pci: 0000:00:02.0, or for usb: 1.2)
     /**
-     * @generated from protobuf field: string as = 3
+     * @generated from protobuf field: optional string as = 3
      */
-    as: string; // the qemu device mapping id used by default (i.e. pci6 or usb7)
+    as?: string; // the qemu device mapping id used by default (i.e. pci6 or usb7)
     /**
-     * @generated from protobuf field: bool connected = 4
+     * @generated from protobuf field: string name = 4
+     */
+    name: string; // the device mapping's name (i.e. GPU)
+    /**
+     * @generated from protobuf field: string node = 5
+     */
+    node: string; // the device mapping's belonging node (i.e. pyro)
+    /**
+     * @generated from protobuf field: bool connected = 6
      */
     connected: boolean; // If true, the device is connected to the host.
     /**
-     * @generated from protobuf field: bool active = 5
+     * @generated from protobuf field: bool active = 7
      */
     active: boolean; // If true, the device is actively used by a QM.
+    /**
+     * @generated from protobuf field: optional google.protobuf.Struct metadata = 8
+     */
+    metadata?: Struct; // other metadata included in the mapping
 }
 /**
  * @generated from protobuf enum v3.firehose.Device.Type
@@ -76,6 +89,14 @@ export interface QM {
      * @generated from protobuf field: v3.firehose.QM.Status status = 3
      */
     status: QM_Status;
+    /**
+     * @generated from protobuf field: repeated string tags = 4
+     */
+    tags: string[];
+    /**
+     * @generated from protobuf field: repeated v3.firehose.Device devices = 5
+     */
+    devices: Device[];
 }
 /**
  * @generated from protobuf enum v3.firehose.QM.Status
@@ -242,11 +263,11 @@ export interface PVEProxyResponse {
      */
     headers: {
         [key: string]: string;
-    }; // The headers returned by the request.SS
+    }; // The headers returned by the request.
     /**
-     * @generated from protobuf field: bytes body = 3
+     * @generated from protobuf field: google.protobuf.Struct body = 3
      */
-    body: Uint8Array; // The body returned by the request.
+    body?: Struct; // The body returned by the request.
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class Device$Type extends MessageType<Device> {
@@ -254,16 +275,20 @@ class Device$Type extends MessageType<Device> {
         super("v3.firehose.Device", [
             { no: 1, name: "type", kind: "enum", T: () => ["v3.firehose.Device.Type", Device_Type, "TYPE_"] },
             { no: 2, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "as", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 4, name: "connected", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
-            { no: 5, name: "active", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
+            { no: 3, name: "as", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "name", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "node", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 6, name: "connected", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 7, name: "active", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 8, name: "metadata", kind: "message", T: () => Struct }
         ]);
     }
     create(value?: PartialMessage<Device>): Device {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.type = 0;
         message.id = "";
-        message.as = "";
+        message.name = "";
+        message.node = "";
         message.connected = false;
         message.active = false;
         if (value !== undefined)
@@ -281,14 +306,23 @@ class Device$Type extends MessageType<Device> {
                 case /* string id */ 2:
                     message.id = reader.string();
                     break;
-                case /* string as */ 3:
+                case /* optional string as */ 3:
                     message.as = reader.string();
                     break;
-                case /* bool connected */ 4:
+                case /* string name */ 4:
+                    message.name = reader.string();
+                    break;
+                case /* string node */ 5:
+                    message.node = reader.string();
+                    break;
+                case /* bool connected */ 6:
                     message.connected = reader.bool();
                     break;
-                case /* bool active */ 5:
+                case /* bool active */ 7:
                     message.active = reader.bool();
+                    break;
+                case /* optional google.protobuf.Struct metadata */ 8:
+                    message.metadata = Struct.internalBinaryRead(reader, reader.uint32(), options, message.metadata);
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -308,15 +342,24 @@ class Device$Type extends MessageType<Device> {
         /* string id = 2; */
         if (message.id !== "")
             writer.tag(2, WireType.LengthDelimited).string(message.id);
-        /* string as = 3; */
-        if (message.as !== "")
+        /* optional string as = 3; */
+        if (message.as !== undefined)
             writer.tag(3, WireType.LengthDelimited).string(message.as);
-        /* bool connected = 4; */
+        /* string name = 4; */
+        if (message.name !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.name);
+        /* string node = 5; */
+        if (message.node !== "")
+            writer.tag(5, WireType.LengthDelimited).string(message.node);
+        /* bool connected = 6; */
         if (message.connected !== false)
-            writer.tag(4, WireType.Varint).bool(message.connected);
-        /* bool active = 5; */
+            writer.tag(6, WireType.Varint).bool(message.connected);
+        /* bool active = 7; */
         if (message.active !== false)
-            writer.tag(5, WireType.Varint).bool(message.active);
+            writer.tag(7, WireType.Varint).bool(message.active);
+        /* optional google.protobuf.Struct metadata = 8; */
+        if (message.metadata)
+            Struct.internalBinaryWrite(message.metadata, writer.tag(8, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -333,7 +376,9 @@ class QM$Type extends MessageType<QM> {
         super("v3.firehose.QM", [
             { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 2, name: "name", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "status", kind: "enum", T: () => ["v3.firehose.QM.Status", QM_Status, "STATUS_"] }
+            { no: 3, name: "status", kind: "enum", T: () => ["v3.firehose.QM.Status", QM_Status, "STATUS_"] },
+            { no: 4, name: "tags", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "devices", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Device }
         ]);
     }
     create(value?: PartialMessage<QM>): QM {
@@ -341,6 +386,8 @@ class QM$Type extends MessageType<QM> {
         message.id = "";
         message.name = "";
         message.status = 0;
+        message.tags = [];
+        message.devices = [];
         if (value !== undefined)
             reflectionMergePartial<QM>(this, message, value);
         return message;
@@ -358,6 +405,12 @@ class QM$Type extends MessageType<QM> {
                     break;
                 case /* v3.firehose.QM.Status status */ 3:
                     message.status = reader.int32();
+                    break;
+                case /* repeated string tags */ 4:
+                    message.tags.push(reader.string());
+                    break;
+                case /* repeated v3.firehose.Device devices */ 5:
+                    message.devices.push(Device.internalBinaryRead(reader, reader.uint32(), options));
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -380,6 +433,12 @@ class QM$Type extends MessageType<QM> {
         /* v3.firehose.QM.Status status = 3; */
         if (message.status !== 0)
             writer.tag(3, WireType.Varint).int32(message.status);
+        /* repeated string tags = 4; */
+        for (let i = 0; i < message.tags.length; i++)
+            writer.tag(4, WireType.LengthDelimited).string(message.tags[i]);
+        /* repeated v3.firehose.Device devices = 5; */
+        for (let i = 0; i < message.devices.length; i++)
+            Device.internalBinaryWrite(message.devices[i], writer.tag(5, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -793,14 +852,13 @@ class PVEProxyResponse$Type extends MessageType<PVEProxyResponse> {
         super("v3.firehose.PVEProxyResponse", [
             { no: 1, name: "status_code", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
             { no: 2, name: "headers", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "scalar", T: 9 /*ScalarType.STRING*/ } },
-            { no: 3, name: "body", kind: "scalar", T: 12 /*ScalarType.BYTES*/ }
+            { no: 3, name: "body", kind: "message", T: () => Struct }
         ]);
     }
     create(value?: PartialMessage<PVEProxyResponse>): PVEProxyResponse {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.statusCode = 0;
         message.headers = {};
-        message.body = new Uint8Array(0);
         if (value !== undefined)
             reflectionMergePartial<PVEProxyResponse>(this, message, value);
         return message;
@@ -816,8 +874,8 @@ class PVEProxyResponse$Type extends MessageType<PVEProxyResponse> {
                 case /* map<string, string> headers */ 2:
                     this.binaryReadMap2(message.headers, reader, options);
                     break;
-                case /* bytes body */ 3:
-                    message.body = reader.bytes();
+                case /* google.protobuf.Struct body */ 3:
+                    message.body = Struct.internalBinaryRead(reader, reader.uint32(), options, message.body);
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -853,9 +911,9 @@ class PVEProxyResponse$Type extends MessageType<PVEProxyResponse> {
         /* map<string, string> headers = 2; */
         for (let k of globalThis.Object.keys(message.headers))
             writer.tag(2, WireType.LengthDelimited).fork().tag(1, WireType.LengthDelimited).string(k).tag(2, WireType.LengthDelimited).string(message.headers[k]).join();
-        /* bytes body = 3; */
-        if (message.body.length)
-            writer.tag(3, WireType.LengthDelimited).bytes(message.body);
+        /* google.protobuf.Struct body = 3; */
+        if (message.body)
+            Struct.internalBinaryWrite(message.body, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

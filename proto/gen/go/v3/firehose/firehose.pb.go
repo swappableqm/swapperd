@@ -12,6 +12,7 @@ package firehose
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -187,10 +188,13 @@ func (PVEProxyRequest_METHOD) EnumDescriptor() ([]byte, []int) {
 type Device struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          Device_Type            `protobuf:"varint,1,opt,name=type,proto3,enum=v3.firehose.Device_Type" json:"type,omitempty"`
-	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`                // the device id (i.e. pci: 0000:00:02.0, or for usb: 1.2)
-	As            string                 `protobuf:"bytes,3,opt,name=as,proto3" json:"as,omitempty"`                // the qemu device mapping id used by default (i.e. pci6 or usb7)
-	Connected     bool                   `protobuf:"varint,4,opt,name=connected,proto3" json:"connected,omitempty"` // If true, the device is connected to the host.
-	Active        bool                   `protobuf:"varint,5,opt,name=active,proto3" json:"active,omitempty"`       // If true, the device is actively used by a QM.
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`                   // the device id (i.e. pci: 0000:00:02.0, or for usb: 1.2)
+	As            *string                `protobuf:"bytes,3,opt,name=as,proto3,oneof" json:"as,omitempty"`             // the qemu device mapping id used by default (i.e. pci6 or usb7)
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`               // the device mapping's name (i.e. GPU)
+	Node          string                 `protobuf:"bytes,5,opt,name=node,proto3" json:"node,omitempty"`               // the device mapping's belonging node (i.e. pyro)
+	Connected     bool                   `protobuf:"varint,6,opt,name=connected,proto3" json:"connected,omitempty"`    // If true, the device is connected to the host.
+	Active        bool                   `protobuf:"varint,7,opt,name=active,proto3" json:"active,omitempty"`          // If true, the device is actively used by a QM.
+	Metadata      *structpb.Struct       `protobuf:"bytes,8,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"` // other metadata included in the mapping
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -240,8 +244,22 @@ func (x *Device) GetId() string {
 }
 
 func (x *Device) GetAs() string {
+	if x != nil && x.As != nil {
+		return *x.As
+	}
+	return ""
+}
+
+func (x *Device) GetName() string {
 	if x != nil {
-		return x.As
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Device) GetNode() string {
+	if x != nil {
+		return x.Node
 	}
 	return ""
 }
@@ -260,6 +278,13 @@ func (x *Device) GetActive() bool {
 	return false
 }
 
+func (x *Device) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
 // A QM represents a QEMU virtual machine in PVE.
 // The QM is the top-level object managed by swapperd.
 type QM struct {
@@ -267,6 +292,8 @@ type QM struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Status        QM_Status              `protobuf:"varint,3,opt,name=status,proto3,enum=v3.firehose.QM_Status" json:"status,omitempty"`
+	Tags          []string               `protobuf:"bytes,4,rep,name=tags,proto3" json:"tags,omitempty"`
+	Devices       []*Device              `protobuf:"bytes,5,rep,name=devices,proto3" json:"devices,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -320,6 +347,20 @@ func (x *QM) GetStatus() QM_Status {
 		return x.Status
 	}
 	return QM_STATUS_UNSPECIFIED
+}
+
+func (x *QM) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *QM) GetDevices() []*Device {
+	if x != nil {
+		return x.Devices
+	}
+	return nil
 }
 
 // A resource pool is a Proxmox-native logistic grouping of VMs (QMs and LXCs) and storage resources.
@@ -688,8 +729,8 @@ func (x *PVEProxyRequest) GetBody() []byte {
 type PVEProxyResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	StatusCode    int32                  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`                                                  // The HTTP status code returned by the request.
-	Headers       map[string]string      `protobuf:"bytes,2,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // The headers returned by the request.SS
-	Body          []byte                 `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`                                                                                 // The body returned by the request.
+	Headers       map[string]string      `protobuf:"bytes,2,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // The headers returned by the request.
+	Body          *structpb.Struct       `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`                                                                                 // The body returned by the request.
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -738,7 +779,7 @@ func (x *PVEProxyResponse) GetHeaders() map[string]string {
 	return nil
 }
 
-func (x *PVEProxyResponse) GetBody() []byte {
+func (x *PVEProxyResponse) GetBody() *structpb.Struct {
 	if x != nil {
 		return x.Body
 	}
@@ -749,21 +790,28 @@ var File_v3_firehose_firehose_proto protoreflect.FileDescriptor
 
 const file_v3_firehose_firehose_proto_rawDesc = "" +
 	"\n" +
-	"\x1av3/firehose/firehose.proto\x12\vv3.firehose\"\xc6\x01\n" +
+	"\x1av3/firehose/firehose.proto\x12\vv3.firehose\x1a\x1cgoogle/protobuf/struct.proto\"\xc1\x02\n" +
 	"\x06Device\x12,\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x18.v3.firehose.Device.TypeR\x04type\x12\x0e\n" +
-	"\x02id\x18\x02 \x01(\tR\x02id\x12\x0e\n" +
-	"\x02as\x18\x03 \x01(\tR\x02as\x12\x1c\n" +
-	"\tconnected\x18\x04 \x01(\bR\tconnected\x12\x16\n" +
-	"\x06active\x18\x05 \x01(\bR\x06active\"8\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\x12\x13\n" +
+	"\x02as\x18\x03 \x01(\tH\x00R\x02as\x88\x01\x01\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x12\x12\n" +
+	"\x04node\x18\x05 \x01(\tR\x04node\x12\x1c\n" +
+	"\tconnected\x18\x06 \x01(\bR\tconnected\x12\x16\n" +
+	"\x06active\x18\a \x01(\bR\x06active\x128\n" +
+	"\bmetadata\x18\b \x01(\v2\x17.google.protobuf.StructH\x01R\bmetadata\x88\x01\x01\"8\n" +
 	"\x04Type\x12\x14\n" +
 	"\x10TYPE_UNSPECIFIED\x10\x00\x12\f\n" +
 	"\bTYPE_PCI\x10\x01\x12\f\n" +
-	"\bTYPE_USB\x10\x02\"\xcb\x01\n" +
+	"\bTYPE_USB\x10\x02B\x05\n" +
+	"\x03_asB\v\n" +
+	"\t_metadata\"\x8e\x02\n" +
 	"\x02QM\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12.\n" +
-	"\x06status\x18\x03 \x01(\x0e2\x16.v3.firehose.QM.StatusR\x06status\"q\n" +
+	"\x06status\x18\x03 \x01(\x0e2\x16.v3.firehose.QM.StatusR\x06status\x12\x12\n" +
+	"\x04tags\x18\x04 \x03(\tR\x04tags\x12-\n" +
+	"\adevices\x18\x05 \x03(\v2\x13.v3.firehose.DeviceR\adevices\"q\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eSTATUS_RUNNING\x10\x01\x12\x11\n" +
@@ -797,12 +845,12 @@ const file_v3_firehose_firehose_proto_rawDesc = "" +
 	"\vMETHOD_POST\x10\x02\x12\x0e\n" +
 	"\n" +
 	"METHOD_PUT\x10\x03\x12\x11\n" +
-	"\rMETHOD_DELETE\x10\x04\"\xc9\x01\n" +
+	"\rMETHOD_DELETE\x10\x04\"\xe2\x01\n" +
 	"\x10PVEProxyResponse\x12\x1f\n" +
 	"\vstatus_code\x18\x01 \x01(\x05R\n" +
 	"statusCode\x12D\n" +
-	"\aheaders\x18\x02 \x03(\v2*.v3.firehose.PVEProxyResponse.HeadersEntryR\aheaders\x12\x12\n" +
-	"\x04body\x18\x03 \x01(\fR\x04body\x1a:\n" +
+	"\aheaders\x18\x02 \x03(\v2*.v3.firehose.PVEProxyResponse.HeadersEntryR\aheaders\x12+\n" +
+	"\x04body\x18\x03 \x01(\v2\x17.google.protobuf.StructR\x04body\x1a:\n" +
 	"\fHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xcd\x02\n" +
@@ -845,30 +893,34 @@ var file_v3_firehose_firehose_proto_goTypes = []any{
 	(*PVEProxyResponse)(nil),         // 13: v3.firehose.PVEProxyResponse
 	nil,                              // 14: v3.firehose.PVEProxyRequest.HeadersEntry
 	nil,                              // 15: v3.firehose.PVEProxyResponse.HeadersEntry
+	(*structpb.Struct)(nil),          // 16: google.protobuf.Struct
 }
 var file_v3_firehose_firehose_proto_depIdxs = []int32{
 	0,  // 0: v3.firehose.Device.type:type_name -> v3.firehose.Device.Type
-	1,  // 1: v3.firehose.QM.status:type_name -> v3.firehose.QM.Status
-	4,  // 2: v3.firehose.ResourcePool.qms:type_name -> v3.firehose.QM
-	4,  // 3: v3.firehose.GetQMsResponse.qms:type_name -> v3.firehose.QM
-	5,  // 4: v3.firehose.GetResourcePoolsResponse.resource_pools:type_name -> v3.firehose.ResourcePool
-	3,  // 5: v3.firehose.GetDevicesResponse.devices:type_name -> v3.firehose.Device
-	2,  // 6: v3.firehose.PVEProxyRequest.method:type_name -> v3.firehose.PVEProxyRequest.METHOD
-	14, // 7: v3.firehose.PVEProxyRequest.headers:type_name -> v3.firehose.PVEProxyRequest.HeadersEntry
-	15, // 8: v3.firehose.PVEProxyResponse.headers:type_name -> v3.firehose.PVEProxyResponse.HeadersEntry
-	6,  // 9: v3.firehose.FirehoseService.GetQMs:input_type -> v3.firehose.GetQMsRequest
-	8,  // 10: v3.firehose.FirehoseService.GetResourcePools:input_type -> v3.firehose.GetResourcePoolsRequest
-	10, // 11: v3.firehose.FirehoseService.GetDevices:input_type -> v3.firehose.GetDevicesRequest
-	12, // 12: v3.firehose.FirehoseService.PVEProxy:input_type -> v3.firehose.PVEProxyRequest
-	7,  // 13: v3.firehose.FirehoseService.GetQMs:output_type -> v3.firehose.GetQMsResponse
-	9,  // 14: v3.firehose.FirehoseService.GetResourcePools:output_type -> v3.firehose.GetResourcePoolsResponse
-	11, // 15: v3.firehose.FirehoseService.GetDevices:output_type -> v3.firehose.GetDevicesResponse
-	13, // 16: v3.firehose.FirehoseService.PVEProxy:output_type -> v3.firehose.PVEProxyResponse
-	13, // [13:17] is the sub-list for method output_type
-	9,  // [9:13] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	16, // 1: v3.firehose.Device.metadata:type_name -> google.protobuf.Struct
+	1,  // 2: v3.firehose.QM.status:type_name -> v3.firehose.QM.Status
+	3,  // 3: v3.firehose.QM.devices:type_name -> v3.firehose.Device
+	4,  // 4: v3.firehose.ResourcePool.qms:type_name -> v3.firehose.QM
+	4,  // 5: v3.firehose.GetQMsResponse.qms:type_name -> v3.firehose.QM
+	5,  // 6: v3.firehose.GetResourcePoolsResponse.resource_pools:type_name -> v3.firehose.ResourcePool
+	3,  // 7: v3.firehose.GetDevicesResponse.devices:type_name -> v3.firehose.Device
+	2,  // 8: v3.firehose.PVEProxyRequest.method:type_name -> v3.firehose.PVEProxyRequest.METHOD
+	14, // 9: v3.firehose.PVEProxyRequest.headers:type_name -> v3.firehose.PVEProxyRequest.HeadersEntry
+	15, // 10: v3.firehose.PVEProxyResponse.headers:type_name -> v3.firehose.PVEProxyResponse.HeadersEntry
+	16, // 11: v3.firehose.PVEProxyResponse.body:type_name -> google.protobuf.Struct
+	6,  // 12: v3.firehose.FirehoseService.GetQMs:input_type -> v3.firehose.GetQMsRequest
+	8,  // 13: v3.firehose.FirehoseService.GetResourcePools:input_type -> v3.firehose.GetResourcePoolsRequest
+	10, // 14: v3.firehose.FirehoseService.GetDevices:input_type -> v3.firehose.GetDevicesRequest
+	12, // 15: v3.firehose.FirehoseService.PVEProxy:input_type -> v3.firehose.PVEProxyRequest
+	7,  // 16: v3.firehose.FirehoseService.GetQMs:output_type -> v3.firehose.GetQMsResponse
+	9,  // 17: v3.firehose.FirehoseService.GetResourcePools:output_type -> v3.firehose.GetResourcePoolsResponse
+	11, // 18: v3.firehose.FirehoseService.GetDevices:output_type -> v3.firehose.GetDevicesResponse
+	13, // 19: v3.firehose.FirehoseService.PVEProxy:output_type -> v3.firehose.PVEProxyResponse
+	16, // [16:20] is the sub-list for method output_type
+	12, // [12:16] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_v3_firehose_firehose_proto_init() }
@@ -876,6 +928,7 @@ func file_v3_firehose_firehose_proto_init() {
 	if File_v3_firehose_firehose_proto != nil {
 		return
 	}
+	file_v3_firehose_firehose_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

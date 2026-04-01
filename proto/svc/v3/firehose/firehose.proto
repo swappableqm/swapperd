@@ -4,6 +4,8 @@ syntax = "proto3";
 
 package v3.firehose;
 
+import "google/protobuf/struct.proto";
+
 option go_package = "github.com/swappableqm/swapperd/proto/gen/v3/firehose;firehosev3";
 
 service FirehoseService {
@@ -31,9 +33,12 @@ message Device {
 
   Type type = 1;
   string id = 2; // the device id (i.e. pci: 0000:00:02.0, or for usb: 1.2)
-  string as = 3; // the qemu device mapping id used by default (i.e. pci6 or usb7)
-  bool connected = 4; // If true, the device is connected to the host.
-  bool active = 5; // If true, the device is actively used by a QM.
+  optional string as = 3; // the qemu device mapping id used by default (i.e. pci6 or usb7)
+  string name = 4; // the device mapping's name (i.e. GPU)
+  string node = 5; // the device mapping's belonging node (i.e. pyro)
+  bool connected = 6; // If true, the device is connected to the host.
+  bool active = 7; // If true, the device is actively used by a QM.
+  optional google.protobuf.Struct metadata = 8; // other metadata included in the mapping
 }
 
 // A QM represents a QEMU virtual machine in PVE.
@@ -50,6 +55,8 @@ message QM {
   string id = 1;
   string name = 2;
   Status status = 3;
+  repeated string tags = 4;
+  repeated Device devices = 5;
 }
 
 // A resource pool is a Proxmox-native logistic grouping of VMs (QMs and LXCs) and storage resources.
@@ -91,6 +98,6 @@ message PVEProxyRequest {
 }
 message PVEProxyResponse {
   int32 status_code = 1; // The HTTP status code returned by the request.
-  map<string, string> headers = 2; // The headers returned by the request.SS
-  bytes body = 3; // The body returned by the request.
+  map<string, string> headers = 2; // The headers returned by the request.
+  google.protobuf.Struct body = 3; // The body returned by the request.
 }
