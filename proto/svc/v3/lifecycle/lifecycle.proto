@@ -11,15 +11,15 @@ option go_package = "github.com/swappableqm/swapperd/proto/gen/v3/lifecycle;life
 service LifecycleService {
   // Sync the active QM with the list of active (currently connected) devices.
   // Other QMs will have blacklisted devices removed, if possible.
-  rpc DeviceSync(DeviceSyncRequest) returns (DeviceSyncResponse);
+  rpc DeviceSync(DeviceSyncRequest) returns (stream DeviceSyncResponse);
 
   // Start a QM.
   // (Request proxied to Firehose)
-  rpc Start(StartRequest) returns (StartResponse);
+  rpc Start(StartRequest) returns (stream StartResponse);
 
   // Stop (or halt) a QM.
   // (Request proxied to Firehose)
-  rpc Stop(StopRequest) returns (StopResponse);
+  rpc Stop(StopRequest) returns (stream StopResponse);
 }
 
 message DeviceSyncRequest {
