@@ -2,6 +2,7 @@
   "name": "swapperd",
   "scripts": {
     "dev:firehose": "cp .env svc/firehose/.env && cd svc/firehose && bun run --watch src/index.ts",
+    "dev:lifecycle": "go run ./svc/lifecycle",
     "build:buf": "rm -rf proto/gen && buf generate"
   },
   "dependencies": {
