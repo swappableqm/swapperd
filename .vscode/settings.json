@@ -1,6 +1,7 @@
 {
     "conventionalCommits.scopes": [
         "proto",
-        "firehose"
+        "firehose",
+        "lifecycle"
     ]
 }
