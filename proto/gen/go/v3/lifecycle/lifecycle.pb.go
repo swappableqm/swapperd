@@ -377,12 +377,12 @@ const file_v3_lifecycle_lifecycle_proto_rawDesc = "" +
 	"\atimeout\x18\x03 \x01(\x05R\atimeout\"I\n" +
 	"\fStopResponse\x12\x1f\n" +
 	"\x02qm\x18\x01 \x01(\v2\x0f.v3.firehose.QMR\x02qm\x12\x18\n" +
-	"\asuccess\x18\x02 \x01(\bR\asuccess2\xe4\x01\n" +
-	"\x10LifecycleService\x12O\n" +
+	"\asuccess\x18\x02 \x01(\bR\asuccess2\xea\x01\n" +
+	"\x10LifecycleService\x12Q\n" +
 	"\n" +
-	"DeviceSync\x12\x1f.v3.lifecycle.DeviceSyncRequest\x1a .v3.lifecycle.DeviceSyncResponse\x12@\n" +
-	"\x05Start\x12\x1a.v3.lifecycle.StartRequest\x1a\x1b.v3.lifecycle.StartResponse\x12=\n" +
-	"\x04Stop\x12\x19.v3.lifecycle.StopRequest\x1a\x1a.v3.lifecycle.StopResponseB\xae\x01\n" +
+	"DeviceSync\x12\x1f.v3.lifecycle.DeviceSyncRequest\x1a .v3.lifecycle.DeviceSyncResponse0\x01\x12B\n" +
+	"\x05Start\x12\x1a.v3.lifecycle.StartRequest\x1a\x1b.v3.lifecycle.StartResponse0\x01\x12?\n" +
+	"\x04Stop\x12\x19.v3.lifecycle.StopRequest\x1a\x1a.v3.lifecycle.StopResponse0\x01B\xae\x01\n" +
 	"\x10com.v3.lifecycleB\x0eLifecycleProtoP\x01Z9github.com/swappableqm/swapperd/proto/gen/go/v3/lifecycle\xa2\x02\x03VLX\xaa\x02\fV3.Lifecycle\xca\x02\fV3\\Lifecycle\xe2\x02\x18V3\\Lifecycle\\GPBMetadata\xea\x02\rV3::Lifecycleb\x06proto3"
 
 var (

@@ -49,13 +49,13 @@ const (
 type LifecycleServiceClient interface {
 	// Sync the active QM with the list of active (currently connected) devices.
 	// Other QMs will have blacklisted devices removed, if possible.
-	DeviceSync(context.Context, *lifecycle.DeviceSyncRequest) (*lifecycle.DeviceSyncResponse, error)
+	DeviceSync(context.Context, *lifecycle.DeviceSyncRequest) (*connect.ServerStreamForClient[lifecycle.DeviceSyncResponse], error)
 	// Start a QM.
 	// (Request proxied to Firehose)
-	Start(context.Context, *lifecycle.StartRequest) (*lifecycle.StartResponse, error)
+	Start(context.Context, *lifecycle.StartRequest) (*connect.ServerStreamForClient[lifecycle.StartResponse], error)
 	// Stop (or halt) a QM.
 	// (Request proxied to Firehose)
-	Stop(context.Context, *lifecycle.StopRequest) (*lifecycle.StopResponse, error)
+	Stop(context.Context, *lifecycle.StopRequest) (*connect.ServerStreamForClient[lifecycle.StopResponse], error)
 }
 
 // NewLifecycleServiceClient constructs a client for the v3.lifecycle.LifecycleService service. By
@@ -98,43 +98,31 @@ type lifecycleServiceClient struct {
 }
 
 // DeviceSync calls v3.lifecycle.LifecycleService.DeviceSync.
-func (c *lifecycleServiceClient) DeviceSync(ctx context.Context, req *lifecycle.DeviceSyncRequest) (*lifecycle.DeviceSyncResponse, error) {
-	response, err := c.deviceSync.CallUnary(ctx, connect.NewRequest(req))
-	if response != nil {
-		return response.Msg, err
-	}
-	return nil, err
+func (c *lifecycleServiceClient) DeviceSync(ctx context.Context, req *lifecycle.DeviceSyncRequest) (*connect.ServerStreamForClient[lifecycle.DeviceSyncResponse], error) {
+	return c.deviceSync.CallServerStream(ctx, connect.NewRequest(req))
 }
 
 // Start calls v3.lifecycle.LifecycleService.Start.
-func (c *lifecycleServiceClient) Start(ctx context.Context, req *lifecycle.StartRequest) (*lifecycle.StartResponse, error) {
-	response, err := c.start.CallUnary(ctx, connect.NewRequest(req))
-	if response != nil {
-		return response.Msg, err
-	}
-	return nil, err
+func (c *lifecycleServiceClient) Start(ctx context.Context, req *lifecycle.StartRequest) (*connect.ServerStreamForClient[lifecycle.StartResponse], error) {
+	return c.start.CallServerStream(ctx, connect.NewRequest(req))
 }
 
 // Stop calls v3.lifecycle.LifecycleService.Stop.
-func (c *lifecycleServiceClient) Stop(ctx context.Context, req *lifecycle.StopRequest) (*lifecycle.StopResponse, error) {
-	response, err := c.stop.CallUnary(ctx, connect.NewRequest(req))
-	if response != nil {
-		return response.Msg, err
-	}
-	return nil, err
+func (c *lifecycleServiceClient) Stop(ctx context.Context, req *lifecycle.StopRequest) (*connect.ServerStreamForClient[lifecycle.StopResponse], error) {
+	return c.stop.CallServerStream(ctx, connect.NewRequest(req))
 }
 
 // LifecycleServiceHandler is an implementation of the v3.lifecycle.LifecycleService service.
 type LifecycleServiceHandler interface {
 	// Sync the active QM with the list of active (currently connected) devices.
 	// Other QMs will have blacklisted devices removed, if possible.
-	DeviceSync(context.Context, *lifecycle.DeviceSyncRequest) (*lifecycle.DeviceSyncResponse, error)
+	DeviceSync(context.Context, *lifecycle.DeviceSyncRequest, *connect.ServerStream[lifecycle.DeviceSyncResponse]) error
 	// Start a QM.
 	// (Request proxied to Firehose)
-	Start(context.Context, *lifecycle.StartRequest) (*lifecycle.StartResponse, error)
+	Start(context.Context, *lifecycle.StartRequest, *connect.ServerStream[lifecycle.StartResponse]) error
 	// Stop (or halt) a QM.
 	// (Request proxied to Firehose)
-	Stop(context.Context, *lifecycle.StopRequest) (*lifecycle.StopResponse, error)
+	Stop(context.Context, *lifecycle.StopRequest, *connect.ServerStream[lifecycle.StopResponse]) error
 }
 
 // NewLifecycleServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -144,19 +132,19 @@ type LifecycleServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewLifecycleServiceHandler(svc LifecycleServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	lifecycleServiceMethods := lifecycle.File_v3_lifecycle_lifecycle_proto.Services().ByName("LifecycleService").Methods()
-	lifecycleServiceDeviceSyncHandler := connect.NewUnaryHandlerSimple(
+	lifecycleServiceDeviceSyncHandler := connect.NewServerStreamHandlerSimple(
 		LifecycleServiceDeviceSyncProcedure,
 		svc.DeviceSync,
 		connect.WithSchema(lifecycleServiceMethods.ByName("DeviceSync")),
 		connect.WithHandlerOptions(opts...),
 	)
-	lifecycleServiceStartHandler := connect.NewUnaryHandlerSimple(
+	lifecycleServiceStartHandler := connect.NewServerStreamHandlerSimple(
 		LifecycleServiceStartProcedure,
 		svc.Start,
 		connect.WithSchema(lifecycleServiceMethods.ByName("Start")),
 		connect.WithHandlerOptions(opts...),
 	)
-	lifecycleServiceStopHandler := connect.NewUnaryHandlerSimple(
+	lifecycleServiceStopHandler := connect.NewServerStreamHandlerSimple(
 		LifecycleServiceStopProcedure,
 		svc.Stop,
 		connect.WithSchema(lifecycleServiceMethods.ByName("Stop")),
@@ -179,14 +167,14 @@ func NewLifecycleServiceHandler(svc LifecycleServiceHandler, opts ...connect.Han
 // UnimplementedLifecycleServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedLifecycleServiceHandler struct{}
 
-func (UnimplementedLifecycleServiceHandler) DeviceSync(context.Context, *lifecycle.DeviceSyncRequest) (*lifecycle.DeviceSyncResponse, error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("v3.lifecycle.LifecycleService.DeviceSync is not implemented"))
+func (UnimplementedLifecycleServiceHandler) DeviceSync(context.Context, *lifecycle.DeviceSyncRequest, *connect.ServerStream[lifecycle.DeviceSyncResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("v3.lifecycle.LifecycleService.DeviceSync is not implemented"))
 }
 
-func (UnimplementedLifecycleServiceHandler) Start(context.Context, *lifecycle.StartRequest) (*lifecycle.StartResponse, error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("v3.lifecycle.LifecycleService.Start is not implemented"))
+func (UnimplementedLifecycleServiceHandler) Start(context.Context, *lifecycle.StartRequest, *connect.ServerStream[lifecycle.StartResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("v3.lifecycle.LifecycleService.Start is not implemented"))
 }
 
-func (UnimplementedLifecycleServiceHandler) Stop(context.Context, *lifecycle.StopRequest) (*lifecycle.StopResponse, error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("v3.lifecycle.LifecycleService.Stop is not implemented"))
+func (UnimplementedLifecycleServiceHandler) Stop(context.Context, *lifecycle.StopRequest, *connect.ServerStream[lifecycle.StopResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("v3.lifecycle.LifecycleService.Stop is not implemented"))
 }

@@ -90,11 +90,15 @@ export interface QM {
      */
     status: QM_Status;
     /**
-     * @generated from protobuf field: repeated string tags = 4
+     * @generated from protobuf field: string node = 4
+     */
+    node: string;
+    /**
+     * @generated from protobuf field: repeated string tags = 5
      */
     tags: string[];
     /**
-     * @generated from protobuf field: repeated v3.firehose.Device devices = 5
+     * @generated from protobuf field: repeated v3.firehose.Device devices = 6
      */
     devices: Device[];
 }
@@ -377,8 +381,9 @@ class QM$Type extends MessageType<QM> {
             { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 2, name: "name", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 3, name: "status", kind: "enum", T: () => ["v3.firehose.QM.Status", QM_Status, "STATUS_"] },
-            { no: 4, name: "tags", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
-            { no: 5, name: "devices", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Device }
+            { no: 4, name: "node", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "tags", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
+            { no: 6, name: "devices", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Device }
         ]);
     }
     create(value?: PartialMessage<QM>): QM {
@@ -386,6 +391,7 @@ class QM$Type extends MessageType<QM> {
         message.id = "";
         message.name = "";
         message.status = 0;
+        message.node = "";
         message.tags = [];
         message.devices = [];
         if (value !== undefined)
@@ -406,10 +412,13 @@ class QM$Type extends MessageType<QM> {
                 case /* v3.firehose.QM.Status status */ 3:
                     message.status = reader.int32();
                     break;
-                case /* repeated string tags */ 4:
+                case /* string node */ 4:
+                    message.node = reader.string();
+                    break;
+                case /* repeated string tags */ 5:
                     message.tags.push(reader.string());
                     break;
-                case /* repeated v3.firehose.Device devices */ 5:
+                case /* repeated v3.firehose.Device devices */ 6:
                     message.devices.push(Device.internalBinaryRead(reader, reader.uint32(), options));
                     break;
                 default:
@@ -433,12 +442,15 @@ class QM$Type extends MessageType<QM> {
         /* v3.firehose.QM.Status status = 3; */
         if (message.status !== 0)
             writer.tag(3, WireType.Varint).int32(message.status);
-        /* repeated string tags = 4; */
+        /* string node = 4; */
+        if (message.node !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.node);
+        /* repeated string tags = 5; */
         for (let i = 0; i < message.tags.length; i++)
-            writer.tag(4, WireType.LengthDelimited).string(message.tags[i]);
-        /* repeated v3.firehose.Device devices = 5; */
+            writer.tag(5, WireType.LengthDelimited).string(message.tags[i]);
+        /* repeated v3.firehose.Device devices = 6; */
         for (let i = 0; i < message.devices.length; i++)
-            Device.internalBinaryWrite(message.devices[i], writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+            Device.internalBinaryWrite(message.devices[i], writer.tag(6, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

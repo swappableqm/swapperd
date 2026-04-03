@@ -18,21 +18,21 @@ export interface ILifecycleService extends grpc.UntypedServiceImplementation {
      *
      * @generated from protobuf rpc: DeviceSync
      */
-    deviceSync: grpc.handleUnaryCall<DeviceSyncRequest, DeviceSyncResponse>;
+    deviceSync: grpc.handleServerStreamingCall<DeviceSyncRequest, DeviceSyncResponse>;
     /**
      * Start a QM.
      * (Request proxied to Firehose)
      *
      * @generated from protobuf rpc: Start
      */
-    start: grpc.handleUnaryCall<StartRequest, StartResponse>;
+    start: grpc.handleServerStreamingCall<StartRequest, StartResponse>;
     /**
      * Stop (or halt) a QM.
      * (Request proxied to Firehose)
      *
      * @generated from protobuf rpc: Stop
      */
-    stop: grpc.handleUnaryCall<StopRequest, StopResponse>;
+    stop: grpc.handleServerStreamingCall<StopRequest, StopResponse>;
 }
 /**
  * @grpc/grpc-js definition for the protobuf service v3.lifecycle.LifecycleService.
@@ -50,7 +50,7 @@ export const lifecycleServiceDefinition: grpc.ServiceDefinition<ILifecycleServic
         path: "/v3.lifecycle.LifecycleService/DeviceSync",
         originalName: "DeviceSync",
         requestStream: false,
-        responseStream: false,
+        responseStream: true,
         responseDeserialize: bytes => DeviceSyncResponse.fromBinary(bytes),
         requestDeserialize: bytes => DeviceSyncRequest.fromBinary(bytes),
         responseSerialize: value => Buffer.from(DeviceSyncResponse.toBinary(value)),
@@ -60,7 +60,7 @@ export const lifecycleServiceDefinition: grpc.ServiceDefinition<ILifecycleServic
         path: "/v3.lifecycle.LifecycleService/Start",
         originalName: "Start",
         requestStream: false,
-        responseStream: false,
+        responseStream: true,
         responseDeserialize: bytes => StartResponse.fromBinary(bytes),
         requestDeserialize: bytes => StartRequest.fromBinary(bytes),
         responseSerialize: value => Buffer.from(StartResponse.toBinary(value)),
@@ -70,7 +70,7 @@ export const lifecycleServiceDefinition: grpc.ServiceDefinition<ILifecycleServic
         path: "/v3.lifecycle.LifecycleService/Stop",
         originalName: "Stop",
         requestStream: false,
-        responseStream: false,
+        responseStream: true,
         responseDeserialize: bytes => StopResponse.fromBinary(bytes),
         requestDeserialize: bytes => StopRequest.fromBinary(bytes),
         responseSerialize: value => Buffer.from(StopResponse.toBinary(value)),

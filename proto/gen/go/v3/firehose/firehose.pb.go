@@ -7,6 +7,8 @@
 // 	protoc        (unknown)
 // source: v3/firehose/firehose.proto
 
+// buf:lint:ignore PACKAGE_VERSION_SUFFIX
+
 package firehose
 
 import (
@@ -292,8 +294,9 @@ type QM struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Status        QM_Status              `protobuf:"varint,3,opt,name=status,proto3,enum=v3.firehose.QM_Status" json:"status,omitempty"`
-	Tags          []string               `protobuf:"bytes,4,rep,name=tags,proto3" json:"tags,omitempty"`
-	Devices       []*Device              `protobuf:"bytes,5,rep,name=devices,proto3" json:"devices,omitempty"`
+	Node          string                 `protobuf:"bytes,4,opt,name=node,proto3" json:"node,omitempty"`
+	Tags          []string               `protobuf:"bytes,5,rep,name=tags,proto3" json:"tags,omitempty"`
+	Devices       []*Device              `protobuf:"bytes,6,rep,name=devices,proto3" json:"devices,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -347,6 +350,13 @@ func (x *QM) GetStatus() QM_Status {
 		return x.Status
 	}
 	return QM_STATUS_UNSPECIFIED
+}
+
+func (x *QM) GetNode() string {
+	if x != nil {
+		return x.Node
+	}
+	return ""
 }
 
 func (x *QM) GetTags() []string {
@@ -805,13 +815,14 @@ const file_v3_firehose_firehose_proto_rawDesc = "" +
 	"\bTYPE_PCI\x10\x01\x12\f\n" +
 	"\bTYPE_USB\x10\x02B\x05\n" +
 	"\x03_asB\v\n" +
-	"\t_metadata\"\x8e\x02\n" +
+	"\t_metadata\"\xa2\x02\n" +
 	"\x02QM\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12.\n" +
 	"\x06status\x18\x03 \x01(\x0e2\x16.v3.firehose.QM.StatusR\x06status\x12\x12\n" +
-	"\x04tags\x18\x04 \x03(\tR\x04tags\x12-\n" +
-	"\adevices\x18\x05 \x03(\v2\x13.v3.firehose.DeviceR\adevices\"q\n" +
+	"\x04node\x18\x04 \x01(\tR\x04node\x12\x12\n" +
+	"\x04tags\x18\x05 \x03(\tR\x04tags\x12-\n" +
+	"\adevices\x18\x06 \x03(\v2\x13.v3.firehose.DeviceR\adevices\"q\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eSTATUS_RUNNING\x10\x01\x12\x11\n" +

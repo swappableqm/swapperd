@@ -5,6 +5,7 @@
 //
 // Source: v3/firehose/firehose.proto
 
+// buf:lint:ignore PACKAGE_VERSION_SUFFIX
 package firehoseconnect
 
 import (

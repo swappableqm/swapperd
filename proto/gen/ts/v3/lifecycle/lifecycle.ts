@@ -447,7 +447,7 @@ export const StopResponse = new StopResponse$Type();
  * @generated ServiceType for protobuf service v3.lifecycle.LifecycleService
  */
 export const LifecycleService = new ServiceType("v3.lifecycle.LifecycleService", [
-    { name: "DeviceSync", options: {}, I: DeviceSyncRequest, O: DeviceSyncResponse },
-    { name: "Start", options: {}, I: StartRequest, O: StartResponse },
-    { name: "Stop", options: {}, I: StopRequest, O: StopResponse }
+    { name: "DeviceSync", serverStreaming: true, options: {}, I: DeviceSyncRequest, O: DeviceSyncResponse },
+    { name: "Start", serverStreaming: true, options: {}, I: StartRequest, O: StartResponse },
+    { name: "Stop", serverStreaming: true, options: {}, I: StopRequest, O: StopResponse }
 ]);
