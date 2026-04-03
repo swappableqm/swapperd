@@ -2,6 +2,7 @@
 // Firehose provides a bridge to Proxmox VE for other microservices to consume and communicate with.
 syntax = "proto3";
 
+// buf:lint:ignore PACKAGE_VERSION_SUFFIX
 package v3.firehose;
 
 import "google/protobuf/struct.proto";
@@ -55,8 +56,9 @@ message QM {
   string id = 1;
   string name = 2;
   Status status = 3;
-  repeated string tags = 4;
-  repeated Device devices = 5;
+  string node = 4;
+  repeated string tags = 5;
+  repeated Device devices = 6;
 }
 
 // A resource pool is a Proxmox-native logistic grouping of VMs (QMs and LXCs) and storage resources.
