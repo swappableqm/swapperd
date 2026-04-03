@@ -4,7 +4,7 @@ import { pveFetch, pveHello } from "../lib/proxmox";
 import type { Proxmox } from "proxmox-api";
 import { deviceProtoiser } from "../lib/proto";
 
-export const _devices = async (type: Device_Type = Device_Type.USB): Promise<Device[]> => {
+export const _devices = async (type: Device_Type = Device_Type.USB, stateless: boolean = false): Promise<Device[]> => {
     const strType = type === Device_Type.PCI ? "pci" : "usb";
     const { ok, data } = await pveFetch<Proxmox.clusterMappingPciIndex[]>(`/cluster/mapping/${strType}`).catch(() => {
         throw new Error("Failed to fetch devices");
