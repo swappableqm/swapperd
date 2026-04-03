@@ -18,14 +18,35 @@ export const statusToEnum = (status: string): QM_Status => {
 }
 
 /* QM Protoiser */
+export const qmProtoiser = (resource: Proxmox.clusterResourcesResources, config: Proxmox.nodesQemuConfigVmConfig, devices: Device[] = []): QM => {
+    const attachedDeviceNames = [...Object.keys(config).filter(k => k.startsWith("hostpci")), ...Object.keys(config).filter(k => k.startsWith("usb"))];
+    const swappableDevices = attachedDeviceNames.filter(n => (config[n].includes("mapping="))).map((deviceName) => {
+        // get all options specified for this device
+        const options = config[deviceName].split(",").map((p: string) => {
+            const [key = "", value = ""] = p.split("=");
+            return { [key]: value };
+        });
 
-export const qmProtoiser = (qm: Proxmox.nodesQemuVm): QM => ({
-    id: qm.vmid?.toString() ?? "",
-    name: qm.name?.toString() ?? "",
-    status: statusToEnum(qm.status ?? ""),
-    tags: qm.tags?.split(",") ?? [],
-    devices: []
-})
+        const device = devices.find((d) => d.name === options.find((o: Record<string, string>) => o.mapping)?.mapping);
+
+        if (!device) throw new Error(`Device ${options["mapping"]} not found`);
+
+        return {
+            ...device,
+            connected: true,
+            active: resource?.status !== "stopped"
+        }
+    });
+
+    return {
+        id: resource.vmid?.toString() ?? "",
+        name: config.name?.toString() ?? "",
+        status: statusToEnum(resource.status?.toString() ?? ""),
+        node: resource?.node?.toString() ?? "",
+        tags: config.tags?.split(",") ?? [],
+        devices: swappableDevices
+    }
+};
 
 export type _internalDeviceMappingData = {
     id: string;
